@@ -1,0 +1,6 @@
+
+.DS_Store
+figures/EulerMethod.aux
+*.log
+*.gz
+*.aux

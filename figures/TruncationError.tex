@@ -1,0 +1,57 @@
+\documentclass{minimal}
+\usepackage{tikz}
+\usepackage{amsmath}
+\usetikzlibrary{shapes,calc}
+\usepackage[active,tightpage]{preview}
+\usetikzlibrary{intersections,decorations.pathreplacing,positioning}
+
+%border around the work
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{1mm}
+\definecolor{greet}{RGB}{52,111,72}
+
+\begin{document}
+\begin{tikzpicture}[scale=1.25]
+
+%\draw[help lines, densely dashed] (0,0) grid (5,5);
+\draw[->] (0,0) -- (5,0);
+%\draw [->,thin] (0,0) -- (0,5);
+%\foreach \x in {0,...,5}
+%{\node[below] at (\x ,0) {$t_\x$};
+%%\node[left] at (0, \x ) {$\x$};
+%}
+%
+\draw[blue, ultra thick, domain=0:3.75] plot (\x, {exp(0.35*\x)});
+
+%\foreach \x in {1,...,4}
+%{\coordinate (v\x) at (\x, {exp(0.35*\x) - 0.15*pow(\x,1.5});}
+
+\coordinate (v0) at (0,1);
+\coordinate (v1) at (3,2);
+\coordinate (y1) at (3, {exp(0.35*3)});
+ 
+\draw[thick] (v0) -- (v1);
+
+\node[below] at  (0, 1) {$y$};
+\fill [blue] (0,1) circle[radius=1.75pt];
+\node[below] at  (3, 1) {$y$};
+\fill [blue] (3,1) circle[radius=1.75pt];
+
+\node[right, xshift=3pt, yshift = -2pt] at (v1) {$u_{\mathrm{next}}$};
+\node[left,xshift=-1pt,yshift=2pt] at (y1) {$y_{\mathrm{next}}$};
+ \fill  [red] (y1) circle[radius=1.75pt];
+ \fill   (v1) circle[radius=1.75pt];
+ 
+\draw (0,0) -- (0,0.15);
+\draw (3,0) -- (3,0.15);
+\node[below] at (0,0)   {$t$};
+\node[below] at (3,0)   {$t+h$};
+
+\draw[help lines,<->] (v0)  -- node[fill=white]{$h$} (3,1) ;
+\draw[decorate,decoration={brace,raise=2pt,amplitude=2pt,mirror}] (v1)  -- node[right, xshift = 2.5pt]{$-h\, T(t,y;h)$} (y1) ;
+\draw[decorate,decoration={brace,raise=2pt,amplitude=2pt,mirror}] (3,1)  -- node[right, xshift = 2.5pt]{$h\, \Phi(t,y;h)$} (v1) ;
+
+\draw[help lines, <->] (v1)  -- (3,2.8) ;
+\draw[help lines, <->] (v1)  -- (3,1) ;
+\end{tikzpicture}
+\end{document}
