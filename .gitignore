@@ -4,3 +4,5 @@ figures/EulerMethod.aux
 *.log
 *.gz
 *.aux
+*.out
+*.toc
