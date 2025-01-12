@@ -228,7 +228,7 @@ The maximal order of $r$-stage R-K method is bounded by $r$ and only achievable 
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=4.6in]{figures/RKlatex.pdf}
-\caption{Runge-Kutta method}
+\caption{Runge-Kutta methods}
 \label{fig:RK}
 \end{center}
 \end{figure}
@@ -243,6 +243,12 @@ k_4 & = f(t_n + h_n, u_n + h_n k_3),\\
 u_{n+1} &= u_n +  \frac{h_n}{6}( k_1 + 2k_2 + 2k_3 + k_4).
 \end{align*}
 \end{tcolorbox}
+
+It resembles Simpson's rule for numerical quadrature:  
+\[
+\int_{t}^{t+h} f(s)\,\mathrm{d}s \approx \frac{h}{6} \left(f(t) + 4f(t+h/2) + f(t+h)\right).  
+\]  
+When the integrand is changed to $f(s, y(s))$, approximations of $y(t+h/2)$ and $y(t+h)$ are required. Verifying the order involves a tedious Taylor expansion.  
 
 \section{Convergence Analysis}
 We first set up the space with norm and the operators. 
