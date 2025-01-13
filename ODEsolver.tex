@@ -66,12 +66,11 @@ which is referred to as the {\em truncation error}.
 
 For simplicity, we omit the subscript $n$ and use the subscript $_{\rm next}$ to indicate $n+1$. With this notation, the truncation error can be rewritten as  
 $$T(t, y; h) = \frac{1}{h}(u_{\rm next} - y_{\rm next}).$$  
-
 This relationship is summarized in the following figure.  
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=7.5cm]{figures/TruncationError.pdf}
+\includegraphics[width=7cm]{figures/TruncationError.pdf}
 \caption{One step method and its truncation error.}
 \label{fig:Th}
 \end{center}
@@ -251,8 +250,97 @@ It resembles Simpson's rule for numerical quadrature:
 When the integrand is changed to $f(s, y(s))$, approximations of $y(t+h/2)$ and $y(t+h)$ are required. Verifying the order involves a tedious Taylor expansion.  
 
 \section{Convergence Analysis}
-We first set up the space with norm and the operators. 
+We recall the generic one step method below
+\medskip
+\begin{tcolorbox}[colframe=black!15!white, coltitle=white!5!black, title = \bf One Step Method (One)]
+Let $t_0=a,\, u_0 = y_0$. For $n=0,1,2,...,$
+\begin{align*}
+t_{n+1} &= t_n + h_n,\\
+u_{n+1} &= u_n + h_n \Phi(t_n, u_n; h_n).
+\end{align*}
+\end{tcolorbox}
 
+
+\subsection{Error equation}
+We first set up the space with norm and the operators. We partition the interval $[a,b]$ into a uniform grid $\mathcal T_h$ with size $h$
+$$
+a = t_0 < t_1 < \cdots < t_{N} = b, \quad t_i = a + ih, h = (b-a)/N.
+$$
+Introduce the vector space $\Gamma_h = \{ \bs v = (v_0, v_1, \ldots, v_{N})\}\cong \mathbb R^{N+1}$ equipped with $\|\cdot\|_{\infty}$ norm. 
+
+For $v\in C^1[a,b]$, define the residual operator $R v=v^{\prime}(t)-f(t, v(t))$. Similarly, define the discrete residual operator
+$$
+\left(R_h \bs v\right)_n =\frac{1}{h}\left(v_{n+1}-v_n\right)-\Phi(t_n, v_n; h), \quad n =0,1,\ldots, N-1.
+$$
+Then by definition, we have the equations$$
+\begin{aligned}
+R y & =0, \quad &y(0) &= y_0 \\
+R_n \bs u & =0, \quad &u_0 &= y_0.
+\end{aligned}
+$$
+where $y$ is the solution to the initial value problem. 
+
+To measure the error, we need to put $y$ and $\bs u$ into the same space. For a function $v\in C[a,b]$, introduce the nodal interpolation $\bs v_I \in \Gamma_h$ as
+$$
+v_n = v(t_n), \quad n = 0, 1, \ldots, N.
+$$
+Notice that $v$ as a continuous function is defined everywhere in the interval while $\bs v_I$ is a vector with function values defined only on grid points. 
+
+
+Now we are ready to present the error equation.
+\begin{equation}\label{eq:error}
+R_h\left(\bs u - \bs y_I\right)=R_h \bs y_I = - T(\bs y_I ; h).
+\end{equation}
+
+\subsection{Stability}
+We introduce the stability of the operator $R_h$. Consider the equation
+$$
+\begin{aligned}
+R_h \bs w &=\bs \varepsilon 
+\\ w_0&=\eta_0.
+\end{aligned}
+$$
+If there exists a constant $K>0$ independent of $h$ s.t. 
+$$
+\|\bs w\|_{\infty} \leqslant K\left(\left\|\eta_0\right\|+\|\bs \varepsilon\|_{\infty}\right),
+$$
+we call $R_h$ is stable. 
+
+\begin{theorem}
+If ${\Phi}(t, \boldsymbol{y} ; h)$ satisfies a Lipschitz condition with respect to the $y$-variables,
+$$
+\left\|{\Phi}(t, \boldsymbol{y} ; h)-\boldsymbol{\Phi}\left(x, \boldsymbol{y}^* ; h\right)\right\| \leq M\left\|\boldsymbol{y}-\boldsymbol{y}^*\right\| \text { on }[a, b] \times \mathbb{R}^d \times\left[0, h_0\right]
+$$
+then the One Step Method (One) is stable.
+\end{theorem}
+
+We precede the proof with the following useful lemma. The proof is elementary.
+\begin{lemma}
+Lemma 5.7.1. Let $\left\{e_n\right\}$ be a sequence of numbers $e_n \in \mathbb{R}$ satisfying
+$$
+e_{n+1} \leq a_n e_n+b_n, \quad n=0,1, \ldots, N-1
+$$
+where $a_n>0$ and $b_n \in \mathbb{R}$. Then
+$$
+\begin{aligned}
+e_{n+1} &\leq E_{n+1}, \text{ with }\\
+E_{n+1}&=\left(\prod_{k=0}^{n} a_k\right) e_0+\sum_{k=0}^{n}\left(\prod_{\ell=k+1}^{n} a_{\ell}\right) b_k, n=0,1, \ldots, N
+\end{aligned}
+$$
+\end{lemma}
+Here is a graphical representation of the coefficients
+$$
+\begin{pmatrix}
+a_0 & 0 & 0 & \cdots & 0 & 0 & 0\\
+a_1 & a_1 & 0 & \cdots & 0 & 0 & 0\\
+a_2 & a_2 & a_2 & \cdots & 0 & 0 & 0\\
+\vdots & \vdots & \vdots & \ddots & \vdots & \vdots & \vdots \\
+%a_{n-1} & a_{n-1} & a_{n-1} & \cdots & a_{n-1} & 0 & 0 \\
+a_n & a_n & a_n & \cdots & a_n & a_n & 1 \\
+\\
+e_0 & b_0 & b_1 & b_2 & \cdots & b_{n-1} & b_n
+\end{pmatrix}
+$$
 
 \end{document}
 \newpage
