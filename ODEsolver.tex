@@ -93,9 +93,9 @@ Note that $p > 0$ implies consistency. Usually, $p$ is an integer $\geq 1$. It i
 \end{definition}
 
 \begin{definition}[Principal error function]
-A function $\Psi: [a, b] \subset \mathbb{R}^d \to \mathbb{R}^d$ that satisfies $\Psi(t, y) \neq 0$ and  
+A function $\tau: [a, b] \subset \mathbb{R}^d \to \mathbb{R}^d$ that satisfies $\Psi(t, y) \neq 0$ and  
 \begin{equation}\label{eq:principal_error}
-T(t, y; h) = \Psi(t, y) h^p + \mathcal{O}(h^{p+1}), \quad h \to 0,  
+T(t, y; h) = \tau(t, y) h^p + \mathcal{O}(h^{p+1}), \quad h \to 0,  
 \end{equation}  
 is called the \emph{principal error function}.
 \end{definition}
@@ -309,7 +309,7 @@ we call $R_h$ is stable.
 \begin{theorem}
 If ${\Phi}(t, \boldsymbol{y} ; h)$ satisfies a Lipschitz condition with respect to the $y$-variables,
 $$
-\left\|{\Phi}(t, \boldsymbol{y} ; h)-\boldsymbol{\Phi}\left(x, \boldsymbol{y}^* ; h\right)\right\| \leq M\left\|\boldsymbol{y}-\boldsymbol{y}^*\right\| \text { on }[a, b] \times \mathbb{R}^d \times\left[0, h_0\right]
+\left\|{\Phi}(t, \boldsymbol{y} ; h)-{\Phi}\left(x, \boldsymbol{y}^* ; h\right)\right\| \leq M\left\|\boldsymbol{y}-\boldsymbol{y}^*\right\| \text { on }[a, b] \times \mathbb{R}^d \times\left[0, h_0\right]
 $$
 then the One Step Method (One) is stable.
 \end{theorem}
@@ -341,6 +341,14 @@ a_n & a_n & a_n & \cdots & a_n & a_n & 1 \\
 e_0 & b_0 & b_1 & b_2 & \cdots & b_{n-1} & b_n
 \end{pmatrix}
 $$
+
+\subsection{Convergence}
+
+\section{Error Expansion}
+Recall the definition of truncation error
+\begin{equation}\label{eq:Tphi}  
+T(t, y; h) = \frac{1}{h}(u_{\rm next} - y_{\rm next}) =  \Phi(t, y; h) - \frac{1}{h} \int_{t}^{t+h} f(s, y(s)) \, \dd s.  
+\end{equation}  
 
 \end{document}
 \newpage
