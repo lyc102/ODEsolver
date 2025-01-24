@@ -448,7 +448,19 @@ we can set the truncation error bound to
 
 
 
-\section{Error Expansion and Adaptive Size Control}
+\section{Error Expansion and Adaptive Mesh Size}
+Previously we use constant time step size $h$. For difficult problems 
+\subsection{Adaptive mesh size}
+\begin{enumerate}
+ \item Estimate $h_n$ as $h_n = \theta^{1/p}h_{n-1}$.
+\item Compute 
+$$\boldsymbol{u}_{n+1}=\boldsymbol{u}_n+h_n \boldsymbol{\Phi}\left(x_n, \boldsymbol{u}_n ; h_n\right)$$ and 
+%$$\left(r_{n+1}-r_n\right)= h_n f_y\left(t_n, {y}\left(x_n\right)\right) r_n+h_n{\tau}\left(t_n, {y}\left(t_n\right)\right).$$
+\item Test $h_n^p\left\|\boldsymbol{r}\left(x_n, \boldsymbol{u}_n ; h_n\right)\right\| \leq \varepsilon_T$. If the test passes, proceed with the next step; if not, repeat the step with a smaller $h_n$, say, half as large, until the test passes.
+\end{enumerate}
+
+
+
 We assume the truncation error
 \begin{equation}\label{eq:Tphi}  
 T_h(t, y) := \frac{1}{h}(u_{\rm next} - y_{\rm next}) =  \Phi_h(t, y) - \frac{1}{h} \int_{t}^{t+h} f(s, y(s)) \, \dd s
@@ -508,86 +520,6 @@ $$
 
 \subsection{Estimate of truncation error}
 $h$-method and $p$-method.
-
-\subsection{Adaptive mesh size}
-\begin{enumerate}
- \item Estimate $h_n$ as $h_n = \theta^{1/p}h_{n-1}$.
-\item Compute 
-$$\boldsymbol{u}_{n+1}=\boldsymbol{u}_n+h_n \boldsymbol{\Phi}\left(x_n, \boldsymbol{u}_n ; h_n\right)$$ and 
-%$$\left(r_{n+1}-r_n\right)= h_n f_y\left(t_n, {y}\left(x_n\right)\right) r_n+h_n{\tau}\left(t_n, {y}\left(t_n\right)\right).$$
-\item Test $h_n^p\left\|\boldsymbol{r}\left(x_n, \boldsymbol{u}_n ; h_n\right)\right\| \leq \varepsilon_T$. If the test passes, proceed with the next step; if not, repeat the step with a smaller $h_n$, say, half as large, until the test passes.
-\end{enumerate}
-
-
-\end{document}
-\newpage
-
-\section{Multi-Steps Methods}
-We can use more information on the previous steps to get a higher order methods. It will be useful to introduce the following symbols representing indices, function value and derivative at various locations.
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=9cm]{figures/multistep.pdf}
-\caption{Notation for multi-step methods}
-\label{fig:multistep}
-\end{center}
-\end{figure}
-
-We use subscript to indicates the function evaluated at the corresponding grid points. For example, for $i=0,1,\ldots, k$
-$$
-y_{n+i} = y(x_{n+i}), \quad f_{n+i} = f(x_{n+i}, y(x_{n+i})).
-$$
-Depending on the context, sometimes $f_{n+i}$ could represent $f(x_{n+i}, u_{n+i})$.
-
-\subsection{Adams-Bashforth method}
-Recall that 
-\begin{equation}
-y_{n+k} = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} y'(t)\dd t = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} f(x, y(x))\dx.
-\end{equation}
-
-Suppose we know function values $y_{n+i}$ for $i=0,\ldots, k-1$, we can evaluate to get $f_{n+i}$ and fit the data $(x_{n+i}, f_{n+i})$ with a polynomial of degree $k-1$. For example, the Lagrange interpolant $f_I$ to $f$ can be written as 
-$$
-f_I(x) = \sum_{i=0}^{k-1}p_i(x) f_{n+i},
-$$
-where $p_i(x)\in \mathbb P_{k-1}$ and $p_i(x_{n+j}) = \delta_{ij}$. 
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{figures/ABmethod.pdf}
-\caption{Adams-Bashforth method}
-\label{fig:multistep}
-\end{center}
-\end{figure}
-
-Approximate $f$ by $f_I$ and let $$\beta_i = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} p_i(x) \dx,$$ we then obtain the Adams-Bashforth method
-\begin{equation}
-u_{n+k} = u_{n+k-1} + h \sum_{i=0}^{k-1}\beta_i f_{n+i}.
-\end{equation}
-
-When studying the truncation error, we assume the function value $y_{n+i}$ is known for $i=0,1,\ldots,k-1$. Then the truncation error $$T_h^{\rm AB} := \frac{1}{h} (u_{n+k} - y_{n+k}) = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} (f_I - f) \dx = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} ((y')_I - y') \dx.$$
-We switch the integrand to $y'$ since now the remainder can be written as derivative of exact solution $y$. As the Lagrange interpolant preserves polynomial  
-
-\subsection{Adams-Moulton method}
-The only difference is the point $(x_{n+k}, f_{n+k})$ is included to fit the polynomial. 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{figures/AMmethod.pdf}
-\caption{Adams-Moulton method}
-\label{fig:multistep}
-\end{center}
-\end{figure}
-
-Now the Lagrange interpolant $f_I$ to $f$ will be 
-$$
-f_I(x) = \sum_{i=0}^{k}p_i^*(x) f_{n+i},
-$$
-where $p_i^*(x)\in \mathbb P_{k}$ and $p_i^*(x_{n+j}) = \delta_{ij}$ for $i,j=0,1,\ldots, k$. The superscript $^*$ is introduced to distinguish the same quantity used in A-B method.
-
-Approximate $f$ by $f_I$ and let $$\beta_i^* = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} p_i^*(x) \dx,$$ we then obtain the Adams-Moultion method
-\begin{equation}\label{AM}
-u_{n+k} = u_{n+k-1} + h \sum_{i=0}^{k-1}\beta_i^* f_{n+i} + h\beta_k^*f(x_{n+k,} u_{n+k}).
-\end{equation}
-Here we single out the last term to emphasize A-M method is an implicit method and an iteration is needed to solve the nonlinear equation \eqref{AM}. 
 
 
 \bibliographystyle{abbrv}
