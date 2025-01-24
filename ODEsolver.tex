@@ -389,7 +389,7 @@ $$
 \end{lemma}
 
 Define
-\begin{equation}
+\begin{equation}\label{eq:vn}
 \begin{aligned}
 \frac{\dd v^n}{\dd t} &= f(t, v^n), \quad t_n \leq t \leq b, \\
 v^n(t_n) &= u_n.
@@ -449,18 +449,69 @@ we can set the truncation error bound to
 
 
 \section{Error Expansion and Adaptive Mesh Size}
-Previously we use constant time step size $h$. For difficult problems 
+Previously we use constant time step size $h$. For some problems, the solution may have dramatic change where a smaller $h$ is needed to achieve an accurate solution.
 \subsection{Adaptive mesh size}
+For one step method $\Phi$ of order $p$, we adaptively choose the mesh size by the following algorithm.
+
+Parameters: $\gamma >1, \rho \in (0,1)$, and $\epsilon_T \ll 1$. Input: $h_0, u_0, t_0$. 
 \begin{enumerate}
- \item Estimate $h_n$ as $h_n = \theta^{1/p}h_{n-1}$.
+ \item Estimate $h_n$ as $h_n = \gamma h_{n-1}$ with $\gamma > 1$.
 \item Compute 
-$$\boldsymbol{u}_{n+1}=\boldsymbol{u}_n+h_n \boldsymbol{\Phi}\left(x_n, \boldsymbol{u}_n ; h_n\right)$$ and 
-%$$\left(r_{n+1}-r_n\right)= h_n f_y\left(t_n, {y}\left(x_n\right)\right) r_n+h_n{\tau}\left(t_n, {y}\left(t_n\right)\right).$$
-\item Test $h_n^p\left\|\boldsymbol{r}\left(x_n, \boldsymbol{u}_n ; h_n\right)\right\| \leq \varepsilon_T$. If the test passes, proceed with the next step; if not, repeat the step with a smaller $h_n$, say, half as large, until the test passes.
+$$
+u_{n+1} = {u}_n+h_n {\Phi}\left(t_n, {u}_n ; h_n\right)$$ and an error estimator on the truncation error 
+$$
+\eta_n \approx T\left(t_n, \boldsymbol{u}_n ; h_n\right).
+$$
+\item Test $$\left\| \eta_n \right\| \leq \varepsilon_T.$$ If the test passes, proceed with the next step; if not, repeat the step with a smaller $h_n \leftarrow \rho h_n, \rho \in (0,1)$, say, half as large, until the test passes.
 \end{enumerate}
 
+The key is the error estimator $\eta_n$ of the truncation error. 
+
+\subsection{Estimate of truncation error}
+Recall that 
+$$
+T(t_n, u_n, h_n) = h^{-1}(u_{n+1} - v^n(t_{n+1})),
+$$
+where $v^n$ is the solution of ODE \eqref{eq:vn} which is in general not computable. A natural ideal is to use 
+$$
+\eta_n = h^{-1}(u_{n+1} - u_{n+1}^*),
+$$
+where $u_{n+1}^*$ is a better solution than $u_{n+1}$. 
+
+We discuss two ways to obtain $u_{n+1}^*$: $h$-method and $p$-method.
+
+\subsubsection{$h$-method} We simply half the mesh size and move two steps to get $u_{n+1}^*$. 
+\begin{equation}
+\begin{aligned}
+{u}_{n+1} & = {u}_n+h {\Phi}(t_n, u_n ; h) \\
+{u}_{n+1/2} & = {u}_n +\frac{1}{2} h {\Phi}\left(t_n, u_n ; \frac{1}{2} h\right) \\
+{u}_{n+1}^* & ={u}_{n+1/2}+\frac{1}{2} h {\Phi}\left(t_n+\frac{1}{2} h, {u}_{n+1/2}; \frac{1}{2} h\right).
+\end{aligned}
+\end{equation}
+Assuming $\Phi$ is of order $p$, we have
+\begin{equation}\label{eq:h-half}
+\begin{aligned}
+h^{-1}({u}_{n+1} -  {u}_n) = \tau h^p + \mathcal O(h^{p+1})\\
+\left (\frac{h}{2}\right )^{-1}({u}_{n+1/2} -  {u}_n) = \tau \left (\frac{h}{2}\right )^p + \mathcal O(h^{p+1}),\\
+\left (\frac{h}{2}\right )^{-1}(u_{n+1}^* - {u}_{n+1/2}) = \tau \left (\frac{h}{2}\right )^p + \mathcal O(h^{p+1}).
+\end{aligned}
+\end{equation}
+Here $\tau = \tau(t_n, u_n)$ is treating as a constant. The term $\tau(t_{n}+h/2, u_{n+1/2}) = \tau + \mathcal O(h)$. 
+
+Adding the second and third identities of \eqref{eq:h-half}, we have
+$$
+h^{-1}({u}_{n+1}^* -  {u}_n) = \tau \left (\frac{h}{2}\right )^p + \mathcal O(h^{p+1})
+$$
+Subtract the first equation of  \eqref{eq:h-half}, we get 
+So 
+$$
+\eta_n = \tau h^p =\frac{1}{1-2^{-p}} \frac{1}{h}(u_{n+1} - u_{n+1}^*).
+$$
+
+\subsubsection{$p$-method}
 
 
+\subsection{Principal error equation}
 We assume the truncation error
 \begin{equation}\label{eq:Tphi}  
 T_h(t, y) := \frac{1}{h}(u_{\rm next} - y_{\rm next}) =  \Phi_h(t, y) - \frac{1}{h} \int_{t}^{t+h} f(s, y(s)) \, \dd s
@@ -518,8 +569,6 @@ $$
 $$
 \end{proof}
 
-\subsection{Estimate of truncation error}
-$h$-method and $p$-method.
 
 
 \bibliographystyle{abbrv}
