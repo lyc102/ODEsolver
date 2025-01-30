@@ -15,9 +15,11 @@ We consider numerical methods for solving the nonlinear ODE
 \begin{equation}\label{ODE}  
 y' = f(x, y),\quad y(a) = y_0,  
 \end{equation}  
-where $t \in \mathbb{R}$ is the independent variable, $y = y(x) \in \mathbb{R}^d$ may be a vector-valued function, and the function $f(x, y)$ is given. The independent variable is change back to $x$ as the multi-step schemes is highly relevant to the 
+where $t \in \mathbb{R}$ is the independent variable, $y = y(x) \in \mathbb{R}^d$ may be a vector-valued function, and the function $f(x, y)$ is given. The independent variable is change back to $x$ as the multi-step schemes is highly related to the interpolation of function $f(x)$. 
 
 \section{Multi-Steps Methods}
+
+\subsection{Notation}
 It will be useful to introduce the following symbols representing indices, function value and derivative at various locations.
 
 \begin{figure}[htbp]
@@ -36,7 +38,13 @@ To simply the notation and easy of analysis, we apply the change of variable
 $$
 u(\hat x) = y(x_{n} + \hat xh), \quad \hat x\in [0,k] \to x = x_n+ \hat x h \in [x_n, x_{n+k}].
 $$
-Therefore $u_i = y_{n+i}$.
+Therefore 
+\begin{equation}\label{eq:change}
+u_i = y_{n+i}, \quad \dx = h \dd \hat{x}, \quad u'(\hat x) = h y'(x_{n} + \hat xh).
+\end{equation}
+
+
+
 %Depending on the context, sometimes $f_{n+i}$ could represent $f(x_{n+i}, u_{n+i})$.
 \subsection{Schemes}
 We can use more information on the previous steps to get a higher order methods. A general form is
@@ -51,7 +59,7 @@ $$
 y_{n+k} = ... h\beta_k f(x_{n+k}, y_{n+k}). 
 $$
 \end{enumerate}
-In total we have $2(k+2)$ parameters, or equivalently, we know function value at $k+1$ points and its derivative at $k+1$ points, we thus can fit a polynomial of degree $p \leq 2k+3$. 
+In total we have $2(k+2)$ parameters, or equivalently, we know function value at $k+1$ points and its derivative at $k+1$ points, ideally we can fit a polynomial of degree $p \leq 2k+3$. 
 
 We define residual operators by
 \begin{equation}
@@ -65,21 +73,30 @@ To study the truncation error, we introduce the linear operator
 $$
 L u:=\sum_{s=0}^k\left[\alpha_s u(s)-\beta_s u^{\prime}(s)\right], \quad u \in C^1[\mathbb{R}] .
 $$
+Notice that the coordinate is changing to $\hat x\in [0,k]$ and due to the relation \eqref{eq:change}, no $h$ is in front of $u'$. 
 
 The scheme has degree $p$ if $L u=0$ for all $u \in \mathbb{P}_p$. By linearity, this is equivalent to
 \begin{equation}\label{eq:Lt}
-L t^r=0, r=0,1, \ldots, p
+L t^r=0, \quad r=0,1, \ldots, p
 \end{equation}
-Indeed we can use \eqref{eq:Lt} to determine the coefficients $(\alpha_i, \beta_i)$. Here we give several examples.
+Indeed we can use \eqref{eq:Lt} to determine the coefficients $(\alpha_i, \beta_i)$. For example,  we obtain the relation
+$$
+\begin{aligned}
+p= 0: & \quad \alpha_0 + \alpha_1 = 0,\\
+p= 1: & \quad \alpha_0 + \alpha_1 = 0, \alpha_0 + \beta_0 + \beta_1 = 1.
+\end{aligned}
+$$
+Here we give several popular examples.
+
 
 \subsection{Truncation error}
 For ${u} \in \boldsymbol{C}^{p+1}[0, k]$, we expand $u$ by its Taylor series at $\hat x = 0$ using the Peano kernel
-$$
+\begin{equation}\label{eq:Taylor}
 u(\hat x) = \sum_{i=0}^p \frac{1}{i!}u^{(i)}(0) \hat x^i + \frac{1}{p!} \int_0^{\hat x} (\hat x- \sigma)^p {u}^{(p+1)}(\sigma) \mathrm{d} \sigma.
+\end{equation}
+By the order condition \eqref{eq:Lt}, apply $L$ to the Taylor expansion \eqref{eq:Taylor}, we get
 $$
-By the order condition \eqref{eq:Lt}, apply $L$ to the Taylor expansion, we get
-$$
-L {u}=\frac{1}{p!} \int_0^k \lambda_p(\sigma) {u}^{(p+1)}(\sigma) \mathrm{d} \sigma, \quad \lambda_p(\sigma)=L_{(t)}(t-\sigma)_{+}^p.
+L {u}=\frac{1}{p!} \int_0^k \lambda_p(\sigma) {u}^{(p+1)}(\sigma) \mathrm{d} \sigma, \quad \lambda_p(\sigma)=L(t-\sigma)_{+}^p.
 $$
 Using the mean value theorem (or Lagrange remainder), we also have
 $$
@@ -92,29 +109,29 @@ A multistep method \eqref{eq:multistep} of polynomial degree $p$ has order $p$ w
 $$
 \left({T}_h\right)_n=\ell_{p+1} {y}^{(p+1)}\left(\bar{x}_n\right) h^p, \quad x_n<\bar{x}_n<x_{n+k}
 $$
-where $\ell_{p+1}$ is as given in (6.37). Moreover, for the principal error function $\boldsymbol{\tau}$ of the method, whether definite or not, we have, if $\boldsymbol{y} \in C^{p+2}[a, b]$,
+where $\ell_{p+1} = \frac{1}{(p+1)!} L t^{p+1}$. Moreover, for the principal error function $\boldsymbol{\tau}$ of the method, whether definite or not, we have, if ${y} \in C^{p+2}[a, b]$,
 $$
-\boldsymbol{\tau}(x)=\ell_{p+1} {y}^{(p+1)}(x).
+{\tau}(x)=\ell_{p+1} {y}^{(p+1)}(x).
 $$
 \end{theorem}
 
 \subsection{Adams-Bashforth and Adams-Moulton methods}
 
 \subsubsection{Adams-Bashforth method}
-Recall that 
+We take $\alpha_{k-1} = -1, \alpha_{k} = 1$ and write out the  solution $y' = f(x, y)$ as
 \begin{equation}
 y_{n+k} = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} y'(t)\dd t = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} f(x, y(x))\dx.
 \end{equation}
 
 Suppose we know function values $y_{n+i}$ for $i=0,\ldots, k-1$, we can evaluate to get $f_{n+i}$ and fit the data $(x_{n+i}, f_{n+i})$ with a polynomial of degree $k-1$. For example, the Lagrange interpolant $f_I$ to $f$ can be written as 
 $$
-f_I(x) = \sum_{i=0}^{k-1}p_i(x) f_{n+i},
+p_n(f; [x_{n}, x_{n+1}, \ldots, x_{n+k-1}]; x) = \sum_{i=0}^{k-1}\ell_i(x) f_{n+i},
 $$
-where $p_i(x)\in \mathbb P_{k-1}$ and $p_i(x_{n+j}) = \delta_{ij}$. 
+where $\ell_i(x)\in \mathbb P_{k-1}$ and $\ell_i(x_{n+j}) = \delta_{ij}$. 
 
 \begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=8cm]{figures/ABmethod.pdf}
+\includegraphics[width=7.5cm]{figures/ABmethod.pdf}
 \caption{Adams-Bashforth method}
 \label{fig:multistep}
 \end{center}
