@@ -30,9 +30,9 @@ It will be useful to introduce the following symbols representing indices, funct
 \end{center}
 \end{figure}
 
-We use subscript to indicates the function evaluated at the corresponding grid points. For $i=0,1,\ldots, k$
+We use subscript to indicates the function evaluated at the corresponding grid points. For $s =0,1,\ldots, k$
 $$
-x_{n+i} = x_n + ih, \quad y_{n+i} = y(x_{n+i}), \quad f_{n+i} = f(x_{n+i}, y(x_{n+i})).
+x_{n+s} = x_n + ih, \quad y_{n+s} = y(x_{n+s}), \quad f_{n+s} = f(x_{n+s}, y(x_{n+s})).
 $$
 To simply the notation and easy of analysis, we apply the change of variable  
 $$
@@ -40,16 +40,16 @@ u(\hat x) = y(x_{n} + \hat xh), \quad \hat x\in [0,k] \to x = x_n+ \hat x h \in 
 $$
 Therefore 
 \begin{equation}\label{eq:change}
-u_i = y_{n+i}, \quad \dx = h \dd \hat{x}, \quad u'(\hat x) = h y'(x_{n} + \hat xh).
+u_s = y_{n+s}, \quad \dx = h \dd \hat{x}, \quad u'(\hat x) = h y'(x_{n} + \hat xh).
 \end{equation}
 
 
 
-%Depending on the context, sometimes $f_{n+i}$ could represent $f(x_{n+i}, u_{n+i})$.
+%Depending on the context, sometimes $f_{n+s}$ could represent $f(x_{n+s}, u_{n+s})$.
 \subsection{Schemes}
 We can use more information on the previous steps to get a higher order methods. A general form is
 \begin{equation}\label{eq:multistep}
-\sum_{i=0}^k \alpha_i y_{n+i} = h\sum_{i=0}^k \beta_i f(x_{n+i}, y_{n+i}).
+\sum_{s=0}^k \alpha_s y_{n+s} = h\sum_{s=0}^k \beta_s f(x_{n+s}, y_{n+s}).
 \end{equation}
 Without loss of generality, we can assume $\alpha_k = 1$. 
 \begin{enumerate}[1.]
@@ -79,7 +79,7 @@ The scheme has degree $p$ if $L u=0$ for all $u \in \mathbb{P}_p$. By linearity,
 \begin{equation}\label{eq:Lt}
 L t^r=0, \quad r=0,1, \ldots, p
 \end{equation}
-Indeed we can use \eqref{eq:Lt} to determine the coefficients $(\alpha_i, \beta_i)$. For example,  we obtain the relation
+Indeed we can use \eqref{eq:Lt} to determine the coefficients $(\alpha_s, \beta_s)$. For example,  we obtain the relation
 $$
 \begin{aligned}
 p= 0: & \quad \alpha_0 + \alpha_1 = 0,\\
@@ -88,6 +88,74 @@ p= 1: & \quad \alpha_0 + \alpha_1 = 0, \alpha_0 + \beta_0 + \beta_1 = 1.
 $$
 Here we give several popular examples.
 
+
+\subsection{Adams-Bashforth and Adams-Moulton methods}
+
+\subsubsection{Adams-Bashforth method}
+We take $\alpha_{k-1} = -1, \alpha_{k} = 1$ and write out the  solution $y' = f(x, y)$ as
+\begin{equation}
+y_{n+k} = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} y'(t)\dd t = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} f(x, y(x))\dx.
+\end{equation}
+
+Suppose we know function values $y_{n+s}$ for $s =0,\ldots, k-1$, we can evaluate to get $f_{n+s}$ and fit the data $(x_{n+s}, f_{n+s})$ with a polynomial of degree $k-1$. For example, the Lagrange interpolant $p_n(f)$ to $f$ can be written as 
+$$
+p_{k-1}(f; [x_{n}, x_{n+1}, \ldots, x_{n+k-1}]; x) = \sum_{s=0}^{k-1}\ell_s(x) f_{n+s},
+$$
+where $\ell_s(x)\in \mathbb P_{k-1}$ and $\ell_s(x_{n+j}) = \delta_{s j}$. An explicit form of Lagrange basis is
+$$
+\ell_s(x) = \prod_{j\neq i, j=0}^{k-1} \frac{(x - x_{n+j})}{(x_{n+s} - x_{n+j})}.
+$$
+In the notation, $p_n(f; [x_{n}, x_{n+1}, \ldots, x_{n+k-1}]; x)$ we put grid points to emphasize the dependence. Usually we can simply write it as $p_n(f;\cdot)$. 
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=7.5cm]{figures/ABmethod.pdf}
+\caption{Adams-Bashforth method}
+\label{fig:multistep}
+\end{center}
+\end{figure}
+
+Approximate $f$ by $p_n(f)$ and let 
+$$
+\beta_s = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} \ell_s(x) \dx = \int_{k-1}^k \prod_{j\neq i, j=0}^{k-1} \frac{ (\hat x -j)}{(s - j)}\dd \hat x, \quad \text{for } s =0, 1, \ldots, k-1,
+$$ we then obtain the Adams-Bashforth method
+\begin{equation}
+y_{n+k} = y_{n+k-1} + h \sum_{s=0}^{k-1}\beta_s f_{n+s}.
+\end{equation}
+
+\subsubsection{Adams-Moulton method}
+The only difference is the point $(x_{n+k}, f_{n+k})$ is included to fit the polynomial but $(x_n, f_n)$ is not. Namely we are using 
+$$
+p_{k-1}(f; [x_{n+1}, \ldots, x_{n+k}]; x) = \sum_{s=1}^{k}\ell_s^*(x) f_{n+s},
+$$
+The superscript $^*$ is introduced to distinguish the same quantity used in A-B method.
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=7.5cm]{figures/AMmethod.pdf}
+\caption{Adams-Moulton method}
+\label{fig:multistep}
+\end{center}
+\end{figure}
+
+%Now the Lagrange interpolant $f_s$ to $f$ will be 
+%$$
+%f_s(x) = \sum_{s=0}^{k}p_s^*(x) f_{n+s},
+%$$
+%where $p_s^*(x)\in \mathbb P_{k}$ and $p_s^*(x_{n+j}) = \delta_{ij}$ for $i,j=0,1,\ldots, k$. 
+%
+
+Approximate $f$ by $p_{k-1}(f)$ and let 
+$$
+\beta_s^* = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} \ell_s^*(x) \dx = \int_{k-1}^k\prod_{j\neq i, j=1}^{k} \frac{ (\hat x -j)}{(s - j)}\dd \hat x, \quad \text{for } s =1, 2, \ldots, k, 
+$$ we then obtain the Adams-Moultion method
+\begin{equation}\label{AM}
+y_{n+k} = y_{n+k-1} + h \sum_{s=1}^{k-1}\beta_s^* f_{n+s} + h\beta_k^*f(x_{n+k,} y_{n+k}).
+\end{equation}
+Here we single out the last term to emphasize A-M method is an implicit method and an iteration is needed to solve the nonlinear equation \eqref{AM}. 
+
+
+\section{Truncation Error Analysis}
 
 \subsection{Truncation error}
 For ${u} \in \boldsymbol{C}^{p+1}[0, k]$, we expand $u$ by its Taylor series at $\hat x = 0$ using the Peano kernel
@@ -115,58 +183,71 @@ $$
 $$
 \end{theorem}
 
-\subsection{Adams-Bashforth and Adams-Moulton methods}
-
-\subsubsection{Adams-Bashforth method}
-We take $\alpha_{k-1} = -1, \alpha_{k} = 1$ and write out the  solution $y' = f(x, y)$ as
-\begin{equation}
-y_{n+k} = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} y'(t)\dd t = y_{n+k-1} + \int_{x_{n+k-1}}^{x_{n+k}} f(x, y(x))\dx.
-\end{equation}
-
-Suppose we know function values $y_{n+i}$ for $i=0,\ldots, k-1$, we can evaluate to get $f_{n+i}$ and fit the data $(x_{n+i}, f_{n+i})$ with a polynomial of degree $k-1$. For example, the Lagrange interpolant $f_I$ to $f$ can be written as 
-$$
-p_n(f; [x_{n}, x_{n+1}, \ldots, x_{n+k-1}]; x) = \sum_{i=0}^{k-1}\ell_i(x) f_{n+i},
-$$
-where $\ell_i(x)\in \mathbb P_{k-1}$ and $\ell_i(x_{n+j}) = \delta_{ij}$. 
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=7.5cm]{figures/ABmethod.pdf}
-\caption{Adams-Bashforth method}
-\label{fig:multistep}
-\end{center}
-\end{figure}
-
-Approximate $f$ by $f_I$ and let $$\beta_i = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} p_i(x) \dx,$$ we then obtain the Adams-Bashforth method
-\begin{equation}
-u_{n+k} = u_{n+k-1} + h \sum_{i=0}^{k-1}\beta_i f_{n+i}.
-\end{equation}
-
-When studying the truncation error, we assume the function value $y_{n+i}$ is known for $i=0,1,\ldots,k-1$. Then the truncation error $$T_h^{\rm AB} := \frac{1}{h} (u_{n+k} - y_{n+k}) = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} (f_I - f) \dx = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} ((y')_I - y') \dx.$$
+\subsection{AB and AM methods}
+When studying the truncation error, we assume the function value $y_{n+s}$ is known for $s =0,1,\ldots,k-1$. Then the truncation error $$T_h^{\rm AB} := \frac{1}{h} (u_{n+k} - y_{n+k}) = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} (f_s - f) \dx = \frac{1}{h} \int_{x_{n+k-1}}^{x_{n+k}} ((y')_s - y') \dx.$$
 We switch the integrand to $y'$ since now the remainder can be written as derivative of exact solution $y$. As the Lagrange interpolant preserves polynomial  
 
-\subsubsection{Adams-Moulton method}
-The only difference is the point $(x_{n+k}, f_{n+k})$ is included to fit the polynomial. 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=8cm]{figures/AMmethod.pdf}
-\caption{Adams-Moulton method}
-\label{fig:multistep}
-\end{center}
-\end{figure}
+\section{Stability Analysis}
+Previously inside the index $n+s$, we consider $n$ is fixed and let $s=0,1,\ldots, k$ to study the truncation error analysis. The stability is on the changing $n$ and concern the uniform bound of $|v_n|$ or in vector form $\|\bs v\|_{\infty}$. 
 
-Now the Lagrange interpolant $f_I$ to $f$ will be 
-$$
-f_I(x) = \sum_{i=0}^{k}p_i^*(x) f_{n+i},
-$$
-where $p_i^*(x)\in \mathbb P_{k}$ and $p_i^*(x_{n+j}) = \delta_{ij}$ for $i,j=0,1,\ldots, k$. The superscript $^*$ is introduced to distinguish the same quantity used in A-B method.
-
-Approximate $f$ by $f_I$ and let $$\beta_i^* = \frac{1}{h}\int_{x_{n+k-1}}^{x_{n+k}} p_i^*(x) \dx,$$ we then obtain the Adams-Moultion method
-\begin{equation}\label{AM}
-u_{n+k} = u_{n+k-1} + h \sum_{i=0}^{k-1}\beta_i^* f_{n+i} + h\beta_k^*f(x_{n+k,} u_{n+k}).
+\subsection{Root condition}
+Consider the homogenous difference equation
+\begin{equation}\label{eq:diff}
+\sum_{s=0}^k \alpha_s v_{n+s} = 0\quad n = 0, 1, \ldots
 \end{equation}
-Here we single out the last term to emphasize A-M method is an implicit method and an iteration is needed to solve the nonlinear equation \eqref{AM}. 
+with given initial condition $v_0, v_1, \ldots, v_{k-1}$. Introduce the chactertistic function
+$$
+\alpha (t) = \sum_{s=0}^k \alpha_s t^s. 
+$$
+For a root $t_i$ of $\alpha(t)$, i.e., $\alpha(t_i) = 0$, $v^n = t_i^n$ will be a solution of \eqref{eq:diff}. If $\alpha(t) = (t-t_i)^2\ldots $, then $\alpha'(t_i) = 0$. On the other hand, $\alpha'(t) = \sum_s s \alpha_s t^{s-1}$. So $v_n = nt_i^n$ is also a solution to \eqref{eq:diff}. 
 
+If $t_s, s=1,2, \ldots, k^{\prime}\left(k^{\prime} \leq k\right)$, denote the distinct roots of $\alpha(t)$ and $m_s$ their multiplicities, then the general solution of \eqref{eq:diff} is given by
+$$
+v_n=\sum_{s=1}^{k^{\prime}}\left(\sum_{r=0}^{m_s-1} c_{r s} r^r\right) t_s^n, \quad n=0,1,2, \ldots,
+$$
+where $c_{r s}$ are arbitrary (real or complex) constants and determined by the $k$ starting values $v_0, v_1, \ldots, v_{k-1}$.
+
+\begin{theorem}[Root condition]
+We have $\left|v_n\right| \leq M$, all $n \geq 0$, for every solution $\left\{v_n\right\}$ of the homogeneous equation \eqref{eq:diff}, with $M$ depending only on the starting values $v_0, v_1, \ldots, v_{k-1}$ (but not on $n$ ) if and only if
+$$
+\alpha\left(t_s\right)=0 \text { implies }\left\{\begin{array}{l}
+\text { either }\left|t_s\right|<1 \\
+\text { or }\left|t_s\right|=1, m_s=1
+\end{array}\right.
+$$
+\end{theorem}
+
+Now consider the inhomogenous differenecne equation
+\begin{equation}\label{eq:inhomdiff}
+\sum_{s=0}^k \alpha_s v_{n+s} = \varphi_{n+k}, \quad n = 0, 1, \ldots
+\end{equation}
+Introduce another index $m = n+k$. For $n=0, 1, \ldots,$ $m = k, k+1, \ldots$. Define the discrete Green's function $(g_{n,m})$ as the solution to the equation
+\begin{equation}\label{eq:gnm}
+\sum_{s=0}^k \alpha_s g_{n+s,m} = \delta_{n+k,m}, \quad n = 0, 1, \ldots, m = k, k+1, \ldots,
+\end{equation}
+together with initial condition $g_{0,m} = g_{1,m} = \ldots = g_{k-1,m} = 0$. 
+For a fixed $m$, it is easy to see $g_{n,m} = 0$ for all $n < m$ since until $n = m$, there is a non-zero source is added. 
+\begin{lemma}
+The solution to \eqref{eq:inhomdiff} can be written as
+ $$
+ v_n = \sum_{m=k}^{\infty} g_{n,m}\varphi_m.
+ $$
+\end{lemma}
+\begin{proof}
+$$
+ \begin{aligned}
+\sum_{s=0}^k \alpha_s v_{n+s} & =\sum_{s=0}^k \alpha_s \sum_{m=k}^{\infty} g_{n+s, m} \varphi_m =\sum_{m=k}^{\infty} \varphi_m \sum_{s=0}^k \alpha_s g_{n+s, m}=\varphi_{n+k}.
+\end{aligned}
+$$
+\end{proof}
+
+\begin{theorem}
+There exists a constant $M>0$, independent of $n$, such that
+$$
+\left|v_n\right| \leq M\left\{\max _{0 \leq s \leq k-1}\left|v_s\right|+\sum_{m=k}^n\left|\varphi_m\right|\right\}, n=0,1,2, \ldots,
+$$
+for every solution $\left\{v_n\right\}$ of (6.73) and for every $\left\{\varphi_{n+k}\right\}$, if and only if the characteristic polynomial $\alpha(t)$ of (6.73) satisfies the root condition (6.78).
+\end{theorem}
 
 
 \bibliographystyle{abbrv}
